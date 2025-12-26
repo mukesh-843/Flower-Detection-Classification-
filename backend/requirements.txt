@@ -1,7 +1,6 @@
-fastapi==0.115.6
+﻿fastapi==0.115.4
 uvicorn[standard]==0.32.1
-# Windows CPU: install the latest available TensorFlow wheel
-tensorflow==2.20.0
-pillow==10.4.0
+tensorflow==2.18.0
 numpy==1.26.4
+pillow==10.4.0
 python-multipart==0.0.9
