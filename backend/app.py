@@ -24,7 +24,7 @@ INPUT_SHAPE = (64, 64)
 app = FastAPI(title="Flower Classifier", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5500"],
+    allow_origins=["*"],  # Update this with your frontend URL after deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -107,5 +107,6 @@ def predict(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=False)
