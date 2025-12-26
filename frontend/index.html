@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flower Classifier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: radial-gradient(circle at 20% 20%, #1c1b2f, #0c0b15 50%);
+      --panel: rgba(255, 255, 255, 0.06);
+      --accent: #f39c12;
+      --text: #f3f2ff;
+      --muted: #b8b6d2;
+      --border: rgba(255, 255, 255, 0.14);
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 32px 16px;
+    }
+    .card {
+      width: min(980px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      backdrop-filter: blur(14px);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 32px;
+      letter-spacing: -0.5px;
+    }
+    p.lead {
+      margin: 0 0 24px;
+      color: var(--muted);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+    .panel {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      min-height: 260px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .dropzone {
+      position: relative;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .dropzone:hover {
+      border-color: var(--accent);
+      background: rgba(243, 156, 18, 0.05);
+    }
+    input[type="file"] {
+      display: none;
+    }
+    button {
+      margin-top: 16px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      background: linear-gradient(120deg, #f39c12, #f1c40f);
+      color: #0c0b15;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .preview {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #131223;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+    }
+    .preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .prediction {
+      margin-top: 12px;
+      font-size: 18px;
+    }
+    .probabilities {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .prob-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    .bar {
+      flex: 1;
+      height: 6px;
+      margin-left: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(120deg, #f39c12, #f1c40f);
+      width: 0;
+    }
+    .status {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Flower Classifier</h1>
+    <p class="lead">Upload a flower photo to get an instant prediction from your trained CNN.</p>
+    <div class="layout">
+      <div class="panel">
+        <label for="file-input">Image</label>
+        <div class="dropzone" id="dropzone">
+          <input id="file-input" type="file" accept="image/*">
+          <p id="drop-text">Drop an image or click to browse</p>
+        </div>
+        <button id="predict" disabled>Predict</button>
+        <div class="status" id="status">Waiting for an image…</div>
+      </div>
+      <div class="panel">
+        <div class="preview" id="preview"><span>Preview</span></div>
+        <div class="prediction" id="prediction"></div>
+        <div class="probabilities" id="probabilities"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const dropzone = document.getElementById('dropzone');
+    const predictBtn = document.getElementById('predict');
+    const preview = document.getElementById('preview');
+    const statusText = document.getElementById('status');
+    const predictionText = document.getElementById('prediction');
+    const probabilitiesBox = document.getElementById('probabilities');
+    const dropText = document.getElementById('drop-text');
+
+    let fileBlob = null;
+
+    function setStatus(message) {
+      statusText.textContent = message;
+    }
+
+    function resetUI() {
+      predictionText.textContent = '';
+      probabilitiesBox.innerHTML = '';
+    }
+
+    function renderPreview(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        preview.innerHTML = `<img src="${reader.result}" alt="preview">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'var(--accent)';
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.style.borderColor = 'var(--border)';
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'var(--border)';
+      if (e.dataTransfer.files.length) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) {
+        setStatus('Please select an image file.');
+        predictBtn.disabled = true;
+        return;
+      }
+      fileBlob = file;
+      predictBtn.disabled = false;
+      renderPreview(file);
+      dropText.textContent = file.name;
+      setStatus('Ready to predict.');
+      resetUI();
+    }
+
+    predictBtn.addEventListener('click', async () => {
+      if (!fileBlob) return;
+      predictBtn.disabled = true;
+      setStatus('Uploading and predicting…');
+
+      const form = new FormData();
+      form.append('file', fileBlob);
+
+      try {
+        const response = await fetch('http://localhost:8000/predict', {
+          method: 'POST',
+          body: form,
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.detail || 'Prediction failed');
+        }
+
+        const result = await response.json();
+        showPrediction(result);
+        setStatus('Done.');
+      } catch (err) {
+        setStatus(err.message);
+      } finally {
+        predictBtn.disabled = false;
+      }
+    });
+
+    function showPrediction(result) {
+      predictionText.textContent = `Prediction: ${result.prediction} (${(result.confidence * 100).toFixed(1)}%)`;
+      probabilitiesBox.innerHTML = '';
+      Object.entries(result.probabilities).forEach(([label, prob]) => {
+        const row = document.createElement('div');
+        row.className = 'prob-row';
+        row.innerHTML = `
+          <span>${label}</span>
+          <div class="bar"><span style="width:${(prob * 100).toFixed(1)}%"></span></div>
+          <strong>${(prob * 100).toFixed(1)}%</strong>
+        `;
+        probabilitiesBox.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>
