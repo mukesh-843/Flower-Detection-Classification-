@@ -3,180 +3,457 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flower Classifier</title>
+  <title>🌸 AI Flower Classifier - Deep Learning Powered</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: radial-gradient(circle at 20% 20%, #1c1b2f, #0c0b15 50%);
-      --panel: rgba(255, 255, 255, 0.06);
-      --accent: #f39c12;
-      --text: #f3f2ff;
-      --muted: #b8b6d2;
-      --border: rgba(255, 255, 255, 0.14);
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      --bg: #0a0a12;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --panel: rgba(255, 255, 255, 0.08);
+      --accent: #667eea;
+      --accent-2: #764ba2;
+      --success: #10b981;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
-    * { box-sizing: border-box; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      margin: 0;
       min-height: 100vh;
       background: var(--bg);
+      background-image: 
+        radial-gradient(at 40% 20%, rgba(102, 126, 234, 0.15) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, rgba(118, 75, 162, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, rgba(102, 126, 234, 0.1) 0px, transparent 50%);
       color: var(--text);
-      font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
-      display: grid;
-      place-items: center;
-      padding: 32px 16px;
+      font-family: 'Inter', 'Space Grotesk', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px;
+      overflow-x: hidden;
     }
+    
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: slideIn 0.6s ease-out;
+    }
+    
+    .logo {
+      font-size: 64px;
+      margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite;
+      display: inline-block;
+    }
+    
     .card {
-      width: min(980px, 100%);
+      width: min(1100px, 100%);
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 18px;
+      border-radius: 24px;
       box-shadow: var(--shadow);
-      padding: 28px;
-      backdrop-filter: blur(14px);
+      padding: 40px;
+      backdrop-filter: blur(20px);
+      animation: slideIn 0.8s ease-out 0.2s both;
     }
+    
     h1 {
-      margin: 0 0 6px;
-      font-size: 32px;
-      letter-spacing: -0.5px;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
     }
-    p.lead {
-      margin: 0 0 24px;
+    
+    .subtitle {
+      font-size: 18px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(102, 126, 234, 0.2);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #a5b4fc;
+      margin-top: 8px;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 32px 0;
+    }
+    
+    .feature {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    
+    .feature:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--accent);
+    }
+    
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    
+    .feature-text {
+      font-size: 14px;
       color: var(--muted);
     }
+    
     .layout {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
       align-items: start;
     }
+    
     .panel {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px dashed var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      min-height: 260px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      min-height: 300px;
+      transition: all 0.3s ease;
     }
+    
+    .panel:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+    
     label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       font-weight: 600;
+      font-size: 16px;
+      color: var(--text);
     }
+    
     .dropzone {
       position: relative;
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      padding: 16px;
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 40px 20px;
       text-align: center;
       cursor: pointer;
-      transition: border-color 0.2s ease, background 0.2s ease;
+      transition: all 0.3s ease;
+      background: rgba(102, 126, 234, 0.03);
     }
+    
     .dropzone:hover {
       border-color: var(--accent);
-      background: rgba(243, 156, 18, 0.05);
+      background: rgba(102, 126, 234, 0.08);
+      transform: translateY(-2px);
     }
+    
+    .dropzone-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+    
     input[type="file"] {
       display: none;
     }
+    
     button {
-      margin-top: 16px;
+      margin-top: 20px;
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       font-weight: 700;
-      letter-spacing: 0.3px;
-      background: linear-gradient(120deg, #f39c12, #f1c40f);
-      color: #0c0b15;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+      position: relative;
+      overflow: hidden;
     }
-    button:hover { transform: translateY(-1px); }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    }
+    
     button:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
+    
+    button:disabled:hover::before {
+      left: -100%;
+    }
+    
     .preview {
       width: 100%;
       aspect-ratio: 1 / 1;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
-      background: #131223;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
       display: grid;
       place-items: center;
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
+      position: relative;
+      transition: all 0.3s ease;
     }
+    
+    .preview:hover {
+      border-color: var(--accent);
+    }
+    
     .preview img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      animation: slideIn 0.4s ease-out;
     }
+    
+    .preview-placeholder {
+      font-size: 64px;
+      opacity: 0.3;
+    }
+    
     .prediction {
-      margin-top: 12px;
-      font-size: 18px;
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 14px;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      animation: slideIn 0.4s ease-out;
     }
+    
+    .prediction-emoji {
+      font-size: 32px;
+      margin-right: 8px;
+    }
+    
     .probabilities {
-      margin-top: 10px;
+      margin-top: 16px;
       display: grid;
-      gap: 8px;
+      gap: 12px;
     }
+    
     .prob-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 14px;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      animation: slideIn 0.4s ease-out;
     }
+    
+    .prob-row:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(4px);
+    }
+    
+    .prob-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+    
+    .flower-emoji {
+      font-size: 20px;
+    }
+    
     .bar {
       flex: 1;
-      height: 6px;
-      margin-left: 10px;
-      background: rgba(255, 255, 255, 0.08);
+      height: 8px;
+      margin: 0 12px;
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 999px;
       overflow: hidden;
     }
+    
     .bar span {
       display: block;
       height: 100%;
-      background: linear-gradient(120deg, #f39c12, #f1c40f);
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
       width: 0;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideIn 0.6s ease-out;
     }
+    
+    .prob-value {
+      font-weight: 700;
+      min-width: 50px;
+      text-align: right;
+      color: var(--accent);
+    }
+    
     .status {
-      margin-top: 8px;
+      margin-top: 12px;
+      padding: 12px;
       color: var(--muted);
       font-size: 14px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+    }
+    
+    .loading {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    footer {
+      margin-top: 48px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    
+    footer a:hover {
+      color: #a5b4fc;
+    }
+    
+    @media (max-width: 768px) {
+      h1 { font-size: 36px; }
+      .logo { font-size: 48px; }
+      .card { padding: 24px; }
+      .features { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <header>
+    <div class="logo">🌸</div>
+    <h1>AI Flower Classifier</h1>
+    <p class="subtitle">Deep Learning Powered Recognition</p>
+    <div class="badge">
+      <span>🧠</span> CNN Model • 5 Flower Types • Real-time Prediction
+    </div>
+  </header>
+  
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">🌼</div>
+      <div class="feature-text">Daisy Recognition</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🌻</div>
+      <div class="feature-text">Sunflower Detection</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🌷</div>
+      <div class="feature-text">Tulip Identification</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🌼</div>
+      <div class="feature-text">Dandelion Analysis</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🌹</div>
+      <div class="feature-text">Rose Classification</div>
+    </div>
+  </div>
+  
   <div class="card">
-    <h1>Flower Classifier</h1>
-    <p class="lead">Upload a flower photo to get an instant prediction from your trained CNN.</p>
     <div class="layout">
       <div class="panel">
-        <label for="file-input">Image</label>
+        <label for="file-input">📤 Upload Image</label>
         <div class="dropzone" id="dropzone">
           <input id="file-input" type="file" accept="image/*">
+          <div class="dropzone-icon">📸</div>
           <p id="drop-text">Drop an image or click to browse</p>
         </div>
-        <button id="predict" disabled>Predict</button>
+        <button id="predict" disabled>
+          🔮 Predict Flower Type
+        </button>
         <div class="status" id="status">Waiting for an image…</div>
       </div>
+      
       <div class="panel">
-        <div class="preview" id="preview"><span>Preview</span></div>
-        <div class="prediction" id="prediction"></div>
+        <label>🖼️ Preview & Results</label>
+        <div class="preview" id="preview">
+          <div class="preview-placeholder">🌺</div>
+        </div>
+        <div id="prediction"></div>
         <div class="probabilities" id="probabilities"></div>
       </div>
     </div>
   </div>
+  
+  <footer>
+    <p>Built with TensorFlow & FastAPI • Deployed on Render & GitHub Pages</p>
+    <p><a href="https://github.com/mukesh-843/Flower-Detection-Classification-" target="_blank">View on GitHub</a></p>
+  </footer>
 
   <script>
     const fileInput = document.getElementById('file-input');
@@ -189,13 +466,26 @@
     const dropText = document.getElementById('drop-text');
 
     let fileBlob = null;
+    
+    const flowerEmojis = {
+      daisy: '🌼',
+      sunflower: '🌻',
+      tulip: '🌷',
+      dandelion: '🌼',
+      rose: '🌹'
+    };
 
-    function setStatus(message) {
+    function setStatus(message, loading = false) {
       statusText.textContent = message;
+      if (loading) {
+        statusText.classList.add('loading');
+      } else {
+        statusText.classList.remove('loading');
+      }
     }
 
     function resetUI() {
-      predictionText.textContent = '';
+      predictionText.innerHTML = '';
       probabilitiesBox.innerHTML = '';
     }
 
@@ -212,15 +502,18 @@
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropzone.style.borderColor = 'var(--accent)';
+      dropzone.style.transform = 'scale(1.02)';
     });
 
     dropzone.addEventListener('dragleave', () => {
       dropzone.style.borderColor = 'var(--border)';
+      dropzone.style.transform = 'scale(1)';
     });
 
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.style.borderColor = 'var(--border)';
+      dropzone.style.transform = 'scale(1)';
       if (e.dataTransfer.files.length) {
         handleFile(e.dataTransfer.files[0]);
       }
@@ -234,22 +527,23 @@
 
     function handleFile(file) {
       if (!file.type.startsWith('image/')) {
-        setStatus('Please select an image file.');
+        setStatus('⚠️ Please select an image file.');
         predictBtn.disabled = true;
         return;
       }
       fileBlob = file;
       predictBtn.disabled = false;
       renderPreview(file);
-      dropText.textContent = file.name;
-      setStatus('Ready to predict.');
+      dropText.innerHTML = `<strong>${file.name}</strong>`;
+      setStatus('✅ Ready to predict!');
       resetUI();
     }
 
     predictBtn.addEventListener('click', async () => {
       if (!fileBlob) return;
       predictBtn.disabled = true;
-      setStatus('Uploading and predicting…');
+      predictBtn.textContent = '🔄 Analyzing...';
+      setStatus('🚀 Uploading and predicting…', true);
 
       const form = new FormData();
       form.append('file', fileBlob);
@@ -267,27 +561,56 @@
 
         const result = await response.json();
         showPrediction(result);
-        setStatus('Done.');
+        setStatus('✨ Prediction complete!');
       } catch (err) {
-        setStatus(err.message);
+        setStatus('❌ ' + err.message);
+        predictionText.innerHTML = `<div style="color: #ef4444; text-align: center;">Error: ${err.message}</div>`;
       } finally {
         predictBtn.disabled = false;
+        predictBtn.textContent = '🔮 Predict Flower Type';
       }
     });
 
     function showPrediction(result) {
-      predictionText.textContent = `Prediction: ${result.prediction} (${(result.confidence * 100).toFixed(1)}%)`;
+      const emoji = flowerEmojis[result.prediction] || '🌺';
+      const capitalizedPrediction = result.prediction.charAt(0).toUpperCase() + result.prediction.slice(1);
+      
+      predictionText.innerHTML = `
+        <span class="prediction-emoji">${emoji}</span>
+        <strong>${capitalizedPrediction}</strong> 
+        <span style="color: var(--success);">(${(result.confidence * 100).toFixed(1)}%)</span>
+      `;
+      
       probabilitiesBox.innerHTML = '';
-      Object.entries(result.probabilities).forEach(([label, prob]) => {
+      
+      // Sort probabilities by value (highest first)
+      const sorted = Object.entries(result.probabilities).sort((a, b) => b[1] - a[1]);
+      
+      sorted.forEach(([label, prob], index) => {
+        const emoji = flowerEmojis[label] || '🌺';
+        const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
         const row = document.createElement('div');
         row.className = 'prob-row';
+        row.style.animationDelay = `${index * 0.1}s`;
         row.innerHTML = `
-          <span>${label}</span>
-          <div class="bar"><span style="width:${(prob * 100).toFixed(1)}%"></span></div>
-          <strong>${(prob * 100).toFixed(1)}%</strong>
+          <div class="prob-label">
+            <span class="flower-emoji">${emoji}</span>
+            <span>${capitalizedLabel}</span>
+          </div>
+          <div class="bar">
+            <span style="width:${(prob * 100).toFixed(1)}%"></span>
+          </div>
+          <div class="prob-value">${(prob * 100).toFixed(1)}%</div>
         `;
         probabilitiesBox.appendChild(row);
       });
+      
+      // Animate bars after a short delay
+      setTimeout(() => {
+        document.querySelectorAll('.bar span').forEach((bar, i) => {
+          bar.style.width = sorted[i][1] * 100 + '%';
+        });
+      }, 100);
     }
   </script>
 </body>
